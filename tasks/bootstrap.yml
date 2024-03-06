@@ -13,7 +13,13 @@
       _mktemp: None
 
   - name: mount tmpfs
-    command: "mount -t tmpfs -o size=2G none {{ _bootstrap_target }} warn=no"
+    ansible.posix.mount:
+      path: "{{ _bootstrap_target }}"
+      src: tmpfs
+      fstype: tmpfs
+      opts: size=2G
+      state: mounted
+    #shell: "mount -t tmpfs -o size=2G none {{ _bootstrap_target }}"
 
   when: use_tmpfs
 
@@ -29,7 +35,7 @@
       {{ release }} {{ _bootstrap_target }} {{ use_mirror|default(mirrors[release]) }}
 
   - name: bind mount pseudo filesystems
-    shell: "mkdir {{ _bootstrap_target }}/{{ item }}; mount --bind /{{ item }} {{ _bootstrap_target }}/{{ item }} warn=no"
+    shell: "mkdir {{ _bootstrap_target }}/{{ item }}; mount --bind /{{ item }} {{ _bootstrap_target }}/{{ item }}"
     register: _pseudomount
     with_items: "{{ pseudo_fs }}"
 
@@ -77,7 +83,7 @@
       mode: "0644"
       owner: root
       group: root
-    when: release in ["stretch", "buster", "sid"]
+    when: release in ["stretch", "buster", "sid", "bookworm"]
 
   - name: update sources
     command: "chroot {{ _bootstrap_target }} apt-get update"

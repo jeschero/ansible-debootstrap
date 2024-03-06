@@ -11,6 +11,7 @@ dependencies:
     - eatmydata
     - dosfstools
     - zstd
+    - curl
   encryption:
     - cryptsetup
   lvm:
@@ -19,22 +20,23 @@ dependencies:
   md:
     - mdadm
   zfs:
-    - "linux-headers-{{ ansible_kernel }}"
-    - linux-headers-generic
+    - linux-headers-amd64
     - zfsutils-linux
     - zfs-initramfs
     - zfs-dkms  # for ZFS 0.8 using the PPA
+    - zfs-zed
 
 mirrors:
   stretch: http://httpredir.debian.org/debian
   buster: http://httpredir.debian.org/debian
+  bookworm: http://deb.debian.org/debian
   xenial: http://archive.ubuntu.com/ubuntu
   bionic: http://archive.ubuntu.com/ubuntu
   eoan: http://archive.ubuntu.com/ubuntu
   focal: http://archive.ubuntu.com/ubuntu
   groovy: http://archive.ubuntu.com/ubuntu
 
-supported_releases: ['stretch', 'buster', 'bullseye', 'bionic', 'eoan', 'focal', 'groovy', 'hirsute', 'impish']
+supported_releases: ['stretch', 'buster', 'bullseye', 'bookworm', 'bionic', 'eoan', 'focal', 'groovy', 'hirsute', 'impish']
 
 _target_devices: []
 _devices_used: []
@@ -71,6 +73,8 @@ required_packages:
     - python-minimal
     - linux-image-amd64
   bullseye:
+    - linux-image-amd64
+  bookworm:
     - linux-image-amd64
 
 _apt_env:
