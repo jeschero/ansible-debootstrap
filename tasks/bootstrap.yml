@@ -126,6 +126,11 @@
 
   - name: install packages
     command: "chroot {{ _bootstrap_target }} eatmydata apt-get -y install {{ _install|join(' ') }}"
+    retries: 3
+    delay: 3
+    register: chroot_install_packages_result
+    until: chroot_install_packages_result.rc == 0
+
 
   - name: clean up packages
     command: "chroot {{ _bootstrap_target }} eatmydata apt-get clean"
