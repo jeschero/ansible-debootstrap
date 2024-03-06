@@ -107,6 +107,7 @@ type codes
 zfs)  
 `mount`: Where to mount this device (**optional**, example */boot*)  
 `encrypt`: Set to yes if you want encryption  
+`encrypt_params`: List of additional luks params
 `target`: Target name for device mapper (**required** when using encryption,
 for example *cryptroot*)  
 `label` filesystem label to use  
@@ -189,6 +190,7 @@ targets defined in `layout`. A list of dictionaries with the following
 elements:
 
 `poolname`: name of the ZFS pool (**required**, example *rpool*)  
+`raid`: The typ of raid which are created pool 
 `devices`: List of devices, you can insert key words like mirror, raidz etc.
 like you would when using zpool create. (**required**, example below)  
 `options`: List of options for the pool  

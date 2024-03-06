@@ -44,7 +44,8 @@
   command: >
     zpool create {% if 'options' in item %}-o {{ item['options']|default([])|join(' -o ') }}{% endif %}
     {% if 'options' in item %}-O {{ item['fs_options']|default([])|join(' -O ') }}{% endif %}
-    -R {{ _tgt_root }} {{ item['poolname']|default('rpool') }} {{ item['devices']|join(' ') }}
+    -R {{ _tgt_root }} {{ item['poolname']|default('rpool') }} {{ item['raid'] if item['raid'] is defined }}
+    {{ item['devices']|join(' ') }}
   with_items: "{{ zfs_pool }}"
   register: _zpool
 

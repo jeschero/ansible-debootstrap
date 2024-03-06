@@ -33,7 +33,9 @@
       --type {{ item.value['luks-type']|default(luks_type) }}
       {{ luks_sector_size if luks_version|int == 2 else '' }}
       --key-size {{ item.value['key-size']|default('256') }} --hash {{ item.value['hash']|default('sha512') }}
-      --iter-time {{ item.value['iter-time']|default('5000') }} luksFormat {{ item.key }}
+      --iter-time {{ item.value['iter-time']|default('5000') }} 
+      {{ item.value.encrypt_params | d([]) | join(' ') }}
+      luksFormat {{ item.key }}
     args:
       stdin: "{{ item.value['passphrase'] }}"
     no_log: true
