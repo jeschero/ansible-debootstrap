@@ -22,7 +22,7 @@ dependencies:
   zfs:
     - linux-headers-amd64
     - zfsutils-linux
-    - zfs-initramfs
+    - "{% if boot_system == 'initramfs' %}zfs-initramfs{% elif boot_system == 'dracut' %}zfs-dracut{% endif %}" 
     - zfs-dkms  # for ZFS 0.8 using the PPA
     - zfs-zed
 
