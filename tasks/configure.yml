@@ -72,6 +72,17 @@
 - name: set up grub
   command: chroot {{ _tgt_root }} update-grub
 
+- name: Enable cryptodisk (grub)
+  ansible.builtin.lineinfile:
+    path: "{{ _tgt_root }}/etc/default/grub"
+    regexp: '^GRUB_ENABLE_CRYPTODISK'
+    insertafter: '^#GRUB_ENABLE_CRYPTODISK'
+    line: GRUB_ENABLE_CRYPTODISK=y                 
+  vars:                                                    
+    _query_layout_encrypt: "[].partitions[].encrypt"                          
+    _query_md_encrypt: "[].encrypt"  
+  when: true in layout | json_query(_query_layout_encrypt) or true in md | json_query(_query_md_encrypt)
+
 - name: install boot loader (grub)
   command: chroot {{ _tgt_root }} grub-install {{ item['device'] }}
   with_items: "{{ layout }}"
