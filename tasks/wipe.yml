@@ -5,6 +5,52 @@
     state: absent
     path: '/root/.bootstrap_complete'
 
+- name: Stop md
+  command:
+    mdadm --stop /dev/md{{ 127 - device_num }}
+  ignore_errors: true
+  loop_control:
+    index_var: device_num
+    loop_var: device
+    label: "{{ device.name }}"
+  loop: "{{ md }}"
+
+#- name: Remove md
+#  command:
+#    mdadm --remove /dev/md{{ 127 - device_num }} 
+#  ignore_errors: true
+#  loop_control:
+#    index_var: device_num
+#    loop_var: device
+#    label: "{{ device.name }}"
+#  loop: "{{ md }}"
+
+- name: Remove partion (md)
+  command:
+    mdadm --fail {{ device.1 }} --remove {{ device.1 }}
+  ignore_errors: true
+  loop_control:
+    loop_var: device
+    label: "{{ device.1 }}"
+  loop: "{{ q('ansible.builtin.subelements', md, 'members', {'skip_missing': True}) }}"
+
+- name: Wipe superblock partition (md)
+  command:
+    mdadm --zero-superblock {{ device.1 }}
+  ignore_errors: true
+  loop_control:
+    loop_var: device
+    label: "{{ device.1 }}"
+  loop: "{{ q('ansible.builtin.subelements', md, 'members', {'skip_missing': True}) }}"
+
+- name: Wipe superblock disk (mb)
+  command:
+    mdadm --zero-superblock {{ item.device }}
+  ignore_errors: true
+  loop: "{{ layout }}"
+  loop_control:
+    label: "{{ item.device }}"
+
 - name: Wipe disklabel
   command: sgdisk -Z {{ item }}
   with_items: "{{ _target_devices }}"
@@ -12,4 +58,8 @@
 - name: discard device
   command: blkdiscard {{ item }}
   failed_when: False
+  with_items: "{{ _target_devices }}"
+
+- name: Reread partition
+  command: partprobe {{ item }}
   with_items: "{{ _target_devices }}"
