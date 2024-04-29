@@ -12,6 +12,7 @@ dependencies:
     - dosfstools
     - zstd
     - curl
+    - systemd-boot
   encryption:
     - cryptsetup
   lvm:
