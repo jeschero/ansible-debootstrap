@@ -46,11 +46,18 @@ _encrypt_targets: {}
 
 required_packages:
   all:
-    - grub-pc
-    - openssh-server
-    - locales
-    - python3-minimal
-    - sudo
+    - "grub-pc"
+    - "openssh-server"
+    - "locales"
+    - "python3-minimal"
+    - "sudo"
+    - "man"
+    - "console-setup"
+    - "dosfstools" 
+    - "linux-headers-amd64"
+    - "linux-image-amd64"
+    - "curl" 
+    - "systemd-timesyncd"
   bionic:
     - python-minimal
     - linux-image-generic
