@@ -32,6 +32,34 @@
   - { src: 'fstab' }
   - { src: 'crypttab', dest: 'crypttab' }
 
+- name: create folder for on luks keyfiles in bootstrap
+  ansible.builtin.file:
+    path: "{{ _tgt_root }}/{{ item.value.keyfile | dirname }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0400"
+  loop_control:
+    label: "{{ item.value.keyfile | default('Null') }}"
+  with_dict: "{{ _encrypt_targets | default({}) }}"
+  #when: item.value.keyfile is defined
+  when: item.value.keyfile is defined | default(false)
+
+- name: Copy luks keyfile in bootstrap
+  ansible.builtin.copy:
+    src: "{{ item.value.keyfile }}"
+    dest: "{{ _tgt_root }}/{{ item.value.keyfile }}"
+    owner: root
+    group: root
+    mode: "0400"
+    remote_src: true
+  loop_control:
+    label: "{{ item.value.keyfile | default('Null') }}"
+  with_dict: "{{ _encrypt_targets | default({}) }}"
+  #when: item.value.keyfile is defined
+  when: item.value.keyfile is defined | default(false)
+
+
 - name: Add thin provisoning hook
   copy:
     src: "lvm-thin"
