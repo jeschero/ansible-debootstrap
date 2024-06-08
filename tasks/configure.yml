@@ -87,13 +87,50 @@
 
 - block:
 
-    - name: get installed kernel versions
-      command: chroot {{ _tgt_root }} ls -m /lib/modules
-      register: available_kernel_versions_result
+    #- name: get installed kernel versions
+    #  command: chroot {{ _tgt_root }} ls -m /lib/modules
+    #  register: available_kernel_versions_result
 
-    - name: update dracut
-      command: chroot {{ _tgt_root }} dracut --force --kver {{ item }}
-      loop: "{{ available_kernel_versions_result.stdout | split(', ') | list }}"
+    #- name: copy dracut default config
+    #  copy:
+    #    src: dracut_defaults
+    #    dest: "{{ _tgt_root }}/etc/dracut.conf.d/dracut_defaults.conf"
+    #    owner: root
+    #    group: root
+    #    mode: '0644'      
+
+    #- name: copy dracut kernel config
+    #  copy:
+    #    src: dracut_kernel
+    #    dest: "{{ _tgt_root }}/etc/kernel/install.conf"
+    #    owner: root
+    #    group: root
+    #    mode: '0644' 
+    
+    - name: copy dracut config
+      template:
+        src: dracut_cmdline
+        dest: "{{ _tgt_root }}/etc/dracut.conf.d/cmdline.conf"
+        owner: root
+        group: root
+        mode: '0644'  
+      vars:
+        _dracut_rootfstype: "{% if zfs_pool is defined | default(false) and zfs_pool | length > 0 %}zfs{% else %}auto{% endif %}"      
+        _dracut_root: "{% if zfs_pool is defined | default(false) and zfs_pool | length > 0 %}ZFS={{ zfs_root }}{% else %}{{ root_system }}{% endif %}"  
+        _dracut_luks: "{{ _tgt_devices.values() | list | to_nice_json | from_json | json_query(_query_partition_decrypt_at_boot) | flatten }}"
+        _query_partition_decrypt_at_boot: "[?decrypt_at_boot == `true` && !contains(keys(@), `luksuuid`)].uuid"  
+    
+    - name: create folder for dracut uki
+      ansible.builtin.file:
+        path: "{{ _tgt_root }}/boot/efi/EFI/Linux"
+        state: directory
+        owner: root
+        group: root
+        mode: "0755"
+
+    #- name: update dracut
+    #  command: chroot {{ _tgt_root }} dracut --force --kver {{ item }} /boot/efi/EFI/Linux/{{ item }}.efi
+    #  loop: "{{ available_kernel_versions_result.stdout | split(', ') | list }}"  
 
   when: boot_system == "dracut"
 
