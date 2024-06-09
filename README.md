@@ -74,6 +74,7 @@ https://launchpad.net/~jonathonf/+archive/ubuntu/zfs
 `wipe`: Set to to string "ABSOLUTELY" if you wish to wipe the disk, this will
 remove any disklabels present as well as issue a TRIM/UNMAP for the device.
 Useful when you want to overwrite a target. **Please use extreme caution**  
+`boot_system`: The typ of boot system  (**required**, `initramfs` or `dracut`) 
 
 ## Debootstrap user options
 `dbstrp_user`:  

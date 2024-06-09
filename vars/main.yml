@@ -12,6 +12,7 @@ dependencies:
     - dosfstools
     - zstd
     - curl
+    - systemd-boot
   encryption:
     - cryptsetup
   lvm:
@@ -22,7 +23,7 @@ dependencies:
   zfs:
     - linux-headers-amd64
     - zfsutils-linux
-    - zfs-initramfs
+    - "{% if boot_system == 'initramfs' %}zfs-initramfs{% elif boot_system == 'dracut' %}zfs-dracut{% endif %}" 
     - zfs-dkms  # for ZFS 0.8 using the PPA
     - zfs-zed
 
@@ -45,11 +46,18 @@ _encrypt_targets: {}
 
 required_packages:
   all:
-    - grub-pc
-    - openssh-server
-    - locales
-    - python3-minimal
-    - sudo
+    - "grub-pc"
+    - "openssh-server"
+    - "locales"
+    - "python3-minimal"
+    - "sudo"
+    - "man"
+    - "console-setup"
+    - "dosfstools" 
+    - "linux-headers-amd64"
+    - "linux-image-amd64"
+    - "curl" 
+    - "systemd-timesyncd"
   bionic:
     - python-minimal
     - linux-image-generic

@@ -272,4 +272,15 @@
       set_fact:
         bootstrapped: yes
 
+    - name: Warning if grub and argon2i for luks is enabled
+      fail:
+        msg: "Warning: You enabled grub and argon2i is placed in one of the luks containers. This algorithm is not supported."     
+      vars:                                                    
+        _query_layout_encrypt: "[].partitions[].encrypt_params"                          
+        _query_md_encrypt: "[].encrypt_params"
+        _filter: "--pbkdf argon2i"
+      when: _filter in layout | json_query(_query_layout_encrypt) | flatten | unique or _filter in md | json_query(_query_md_encrypt) | flatten | unique
+      ignore_errors: True
+
+
   when: not bootstrapped or wipe|default('') == "ABSOLUTELY"
