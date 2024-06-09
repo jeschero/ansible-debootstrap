@@ -72,6 +72,50 @@
     with_dict: "{{ _encrypt_targets|default({}) }}"
     register: _luksopen
 
+  - name: create folder for on keyfiles
+    ansible.builtin.file:
+      path: "{{ item.value.keyfile | dirname }}"
+      state: directory
+      owner: root
+      group: root
+      mode: "0400"
+    loop_control:
+      label: "{{ item.value.keyfile | default('Null') }}"
+    with_dict: "{{ _encrypt_targets|default({}) }}"
+    when: item.value.keyfile is defined | default(false)
+    #when: item.value | selectattr("keyfile", "defined") | list | length > 0 
+
+  - name: Create keyfile
+    ansible.builtin.command:
+      cmd: dd if=/dev/urandom of={{ item.value.keyfile }} bs=2048 count=2 iflag=fullblock
+      creates: "{{ item.value.keyfile }}"
+    loop_control:
+      label: "{{ item.value.keyfile | default('Null') }}"
+    with_dict: "{{ _encrypt_targets|default({}) }}"
+    when: item.value.keyfile is defined | default(false)
+
+  - name: Set permissions on keyfile 
+    ansible.builtin.file:
+      path: "{{ item.value.keyfile }}"
+      owner: root
+      group: root
+      mode: "0400"
+    loop_control:
+      label: "{{ item.value.keyfile | default('Null') }}"
+    with_dict: "{{ _encrypt_targets|default({}) }}"
+    when: item.value.keyfile is defined | default(false)
+
+  - name: Add keyfile
+    community.crypto.luks_device:
+      name: "{{ item.value['target'] }}"
+      state: "present"
+      passphrase: "{{ item.value['passphrase'] }}"
+      new_keyfile: "{{ item.value.keyfile }}"
+    loop_control:
+      label: "{{ item.value.keyfile | default('Null') }}"
+    with_dict: "{{ _encrypt_targets|default({}) }}"
+    when: item.value.keyfile is defined | default(false)
+
   rescue:
   - include_tasks: cleanup.yml
   - include_tasks: wipe.yml

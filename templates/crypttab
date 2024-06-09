@@ -1,6 +1,6 @@
 # <target name>	<source device>		<key file>	<options>
 {% for device in _tgt_devices %}
-{% if _tgt_devices[device]['encrypt']|default(False) %}
-{{ _tgt_devices[device]['target'] }} UUID={{ _tgt_devices[device]['uuid'] }}  none  luks
+{% if _tgt_devices[device]['encrypt'] | default(False) and not _tgt_devices[device]['decrypt_at_boot'] | default(False) %}
+{{ _tgt_devices[device]['target'] }} UUID={{ _tgt_devices[device]['uuid'] }} {% if _tgt_devices[device]['keyfile'] is defined %}{{ _tgt_devices[device]['keyfile'] }}{% else %}none{% endif %} {{ _tgt_devices[device]['luks_params'] | d([]) | join(',') }}
 {% endif %}
 {% endfor %}

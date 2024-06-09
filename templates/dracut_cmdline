@@ -1,0 +1,1 @@
+kernel_cmdline="{% for luks_device_uuid in _dracut_luks %}rd.luks.uuid=luks-{{ luks_device_uuid }} rd.luks.allow-discards={{ luks_device_uuid }} {% endfor %} {% if _dracut_luks | length > 0%}rd.luks{% endif%} root={{ _dracut_root }} rootfstype={{ _dracut_rootfstype }} rootflags=rw,relatime,xattr,noacl "

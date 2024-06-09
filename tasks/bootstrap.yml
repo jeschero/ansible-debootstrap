@@ -54,6 +54,16 @@
     set_fact:
       _install: "{{ _install|map('regex_replace', 'grub-pc', 'grub-efi') | list }}"
 
+  - name: add "systemd-boot-efi" if efi is enabled
+    when: use_efi and _stat_efi.stat.exists
+    set_fact:
+      _install: "{{ _install + ['systemd-boot-efi', 'efibootmgr'] }}"
+
+  - name: add zfs driver for bootloader
+    when: zfs_pool | length > 0
+    set_fact:
+      _install: "{% if boot_system == 'initramfs' %}{{ _install + ['zfs-initramfs'] }}{% elif boot_system == 'dracut' %}{{ _install + ['zfs-dracut'] }}{% endif %}"
+
   - debug:
       msg: "Going to install: {{ _install|join(', ') }}"
       verbosity: 2

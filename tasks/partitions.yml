@@ -57,6 +57,8 @@
     {%- endif -%}
     {% endfor %} {{ item.device }}
   with_items: "{{ layout_w_attrs }}"
+  loop_control:
+    label: "{{ item.device }}"
 
 - name: find devices for partuuid
   command: "blkid -l -o device -t PARTUUID='{{ item.value }}'"

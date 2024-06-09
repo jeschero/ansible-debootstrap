@@ -17,10 +17,14 @@
 # A bit of shell scripting here to ensure that the directory exists on the mounted device
 - name: create mountpoints and mount
   shell: >
+    {% if 'mount' in _mountpoints[item] and _mountpoints[item]['mount'] != 'none' %}
     if [ ! -d {{ _tgt_root }}{{ _mountpoints[item]['mount'] }} ];
     then mkdir -p {{ _tgt_root }}{{ _mountpoints[item]['mount'] }}; fi;
-    mount {{ _mountpoints[item]['device'] }} {{ _tgt_root }}{{ _mountpoints[item]['mount'] }}
+    {% endif %}
+    mount {{ _mount_device }} {{ _tgt_root }}{{ _mountpoints[item]['mount'] }}
   with_items: "{{ _mountlist|sort }}"
+  vars:
+    _mount_device: "{% if _mountpoints[item]['encrypt'] | default(False) %}/dev/mapper/{{ _mountpoints[item]['target'] }}{% else %}{{ _mountpoints[item]['device'] }}{% endif %}"
   register: _mount
 
 - name: "zfs legacy: create mountpoints and mount"
